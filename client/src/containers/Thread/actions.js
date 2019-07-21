@@ -1,11 +1,6 @@
 import * as postService from 'src/services/postService';
 import * as commentService from 'src/services/commentService';
-import {
-    ADD_POST,
-    LOAD_MORE_POSTS,
-    SET_ALL_POSTS,
-    SET_EXPANDED_POST
-} from './actionTypes';
+import { ADD_POST, LOAD_MORE_POSTS, SET_ALL_POSTS, SET_EXPANDED_POST } from './actionTypes';
 
 const setPostsAction = posts => ({
     type: SET_ALL_POSTS,
@@ -33,10 +28,13 @@ export const loadPosts = filter => async (dispatch) => {
 };
 
 export const loadMorePosts = filter => async (dispatch, getRootState) => {
-    const { posts: { posts } } = getRootState();
+    const {
+        posts: { posts }
+    } = getRootState();
     const loadedPosts = await postService.getAllPosts(filter);
-    const filteredPosts = loadedPosts
-        .filter(post => !(posts && posts.some(loadedPost => post.id === loadedPost.id)));
+    const filteredPosts = loadedPosts.filter(
+        post => !(posts && posts.some(loadedPost => post.id === loadedPost.id))
+    );
     dispatch(addMorePostsAction(filteredPosts));
 };
 
@@ -65,7 +63,9 @@ export const likePost = postId => async (dispatch, getRootState) => {
         likeCount: Number(post.likeCount) + diff // diff is taken from the current closure
     });
 
-    const { posts: { posts, expandedPost } } = getRootState();
+    const {
+        posts: { posts, expandedPost }
+    } = getRootState();
     const updated = posts.map(post => (post.id !== postId ? post : mapLikes(post)));
 
     dispatch(setPostsAction(updated));
@@ -73,6 +73,10 @@ export const likePost = postId => async (dispatch, getRootState) => {
     if (expandedPost && expandedPost.id === postId) {
         dispatch(setExpandedPostAction(mapLikes(expandedPost)));
     }
+};
+
+export const dislikePost = postId => async (dispatch, getRootState) => {
+    console.log('have no fucking clue how to write it')
 };
 
 export const addComment = request => async (dispatch, getRootState) => {
@@ -85,10 +89,10 @@ export const addComment = request => async (dispatch, getRootState) => {
         comments: [...(post.comments || []), comment] // comment is taken from the current closure
     });
 
-    const { posts: { posts, expandedPost } } = getRootState();
-    const updated = posts.map(post => (post.id !== comment.postId
-        ? post
-        : mapComments(post)));
+    const {
+        posts: { posts, expandedPost }
+    } = getRootState();
+    const updated = posts.map(post => (post.id !== comment.postId ? post : mapComments(post)));
 
     dispatch(setPostsAction(updated));
 

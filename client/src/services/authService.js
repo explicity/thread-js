@@ -4,7 +4,7 @@ export const login = async (request) => {
     const response = await callWebApi({
         endpoint: '/api/auth/login',
         type: 'POST',
-        request,
+        request
     });
     return response.json();
 };
@@ -13,7 +13,16 @@ export const registration = async (request) => {
     const response = await callWebApi({
         endpoint: '/api/auth/register',
         type: 'POST',
-        request,
+        request
+    });
+    return response.json();
+};
+
+export const forgotPassword = async (request) => {
+    const response = await callWebApi({
+        endpoint: '/reset',
+        type: 'POST',
+        request
     });
     return response.json();
 };

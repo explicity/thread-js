@@ -10,9 +10,11 @@ import Header from 'src/components/Header';
 import SharedPost from 'src/containers/SharedPost';
 import Spinner from 'src/components/Spinner';
 import NotFound from 'src/scenes/NotFound';
+import ForgotPassword from 'src/components/ForgotPassword';
+import ResetPassword from 'src/components/ResetPassword';
 import PrivateRoute from 'src/containers/PrivateRoute';
 import Notifications from 'src/components/Notifications';
-import { loadCurrentUser, logout, login, registration } from 'src/containers/Profile/actions';
+import { loadCurrentUser, logout, login, registration, forgotPassword } from 'src/containers/Profile/actions';
 import { applyPost } from 'src/containers/Thread/actions';
 import PropTypes from 'prop-types';
 
@@ -37,6 +39,12 @@ class Routing extends React.Component {
         />
     );
 
+    renderForgotPassword = Props => (
+        <ForgotPassword
+            {...Props}
+            forgotPassword={this.props.forgotPassword} />
+    )
+
     render() {
         const { isLoading, isAuthorized, user, ...props } = this.props;
         return (
@@ -53,6 +61,8 @@ class Routing extends React.Component {
                             <Switch>
                                 <Route exact path="/login" render={this.renderLogin} />
                                 <Route exact path="/registration" render={this.renderRegistration} />
+                                <Route exact path="/reset" render={this.renderForgotPassword} />
+                                <Route path="/reset/:id" render={ResetPassword} />
                                 <PrivateRoute exact path="/" component={Thread} />
                                 <PrivateRoute exact path="/profile" component={Profile} />
                                 <PrivateRoute path="/share/:postHash" component={SharedPost} />
@@ -85,7 +95,7 @@ Routing.defaultProps = {
     userId: undefined
 };
 
-const actions = { loadCurrentUser, login, logout, registration, applyPost };
+const actions = { loadCurrentUser, login, logout, registration, forgotPassword, applyPost };
 
 const mapStateToProps = rootState => ({
     isAuthorized: rootState.profile.isAuthorized,

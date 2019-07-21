@@ -16,6 +16,7 @@ class PostRepository extends BaseRepository {
         if (userId) {
             Object.assign(where, { userId });
         }
+        console.log(userId, where);
 
         return this.model.findAll({
             where,
