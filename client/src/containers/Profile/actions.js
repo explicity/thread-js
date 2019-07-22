@@ -29,6 +29,8 @@ export const registration = request => handleAuthResponse(authService.registrati
 
 export const forgotPassword = request => handleAuthResponse(authService.forgotPassword(request));
 
+export const resetPassword = request => handleAuthResponse(authService.resetPassword(request));
+
 export const logout = () => setAuthData();
 
 export const loadCurrentUser = () => async (dispatch, getRootState) => {

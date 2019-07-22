@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import validator from 'validator';
 
-import { Grid, Form, Button, Segment } from 'semantic-ui-react';
+import { Grid, Form, Button, Segment, Header } from 'semantic-ui-react';
 
 class ForgotPassword extends Component {
     constructor(props) {
@@ -37,6 +37,9 @@ class ForgotPassword extends Component {
         return (
             <Grid textAlign="center" verticalAlign="middle" className="fill">
                 <Grid.Column style={{ maxWidth: 450 }}>
+                    <Header as="h2" color="teal" textAlign="center">
+                        Enter your email to reset a password
+                    </Header>
                     <Form name="resetPasswordForm" size="large" onSubmit={this.handleSubmit}>
                         <Segment>
                             <Form.Input

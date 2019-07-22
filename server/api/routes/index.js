@@ -9,5 +9,5 @@ export default (app) => {
     app.use('/api/posts', postRoutes);
     app.use('/api/comments', commentRoutes);
     app.use('/api/images', imageRoutes);
-    app.use('/reset', passwordRoutes); 
+    app.use('/forgot', passwordRoutes);
 };

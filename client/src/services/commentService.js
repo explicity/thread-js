@@ -16,3 +16,16 @@ export const getComment = async (id) => {
     });
     return response.json();
 };
+
+
+export const likeComment = async (postId) => {
+    const response = await callWebApi({
+        endpoint: '/api/comments/react',
+        type: 'PUT',
+        request: {
+            postId,
+            isLike: true
+        }
+    });
+    return response.json();
+};

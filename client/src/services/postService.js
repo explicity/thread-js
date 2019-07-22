@@ -46,7 +46,7 @@ export const dislikePost = async (postId) => {
         type: 'PUT',
         request: {
             postId,
-            isDislike: true
+            isLike: false
         }
     });
     return response.json();

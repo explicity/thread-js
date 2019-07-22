@@ -9,3 +9,8 @@ export const getUserByEmail = async (userEmail) => {
     const { id, username, email, imageId, image } = await userRepository.getByEmail(userEmail);
     return { id, username, email, imageId, image };
 };
+
+export const updateUserPassword = async (userId, userPassword) => {
+    const response = await userRepository.updateUserPassword(userId, userPassword);
+    return response;
+}

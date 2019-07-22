@@ -20,7 +20,16 @@ export const registration = async (request) => {
 
 export const forgotPassword = async (request) => {
     const response = await callWebApi({
-        endpoint: '/reset',
+        endpoint: '/forgot',
+        type: 'POST',
+        request
+    });
+    return response.json();
+};
+
+export const resetPassword = async (request) => {
+    const response = await callWebApi({
+        endpoint: `/forgot/${request.id}`,
         type: 'POST',
         request
     });

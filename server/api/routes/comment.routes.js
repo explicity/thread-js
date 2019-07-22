@@ -4,11 +4,16 @@ import * as commentService from '../services/comment.service';
 const router = Router();
 
 router
-    .get('/:id', (req, res, next) => commentService.getCommentById(req.params.id)
+    .get('/:id', (req, res, next) => commentService
+        .getCommentById(req.params.id)
         .then(comment => res.send(comment))
         .catch(next))
-    .post('/', (req, res, next) => commentService.create(req.user.id, req.body) // user added to the request in the jwt strategy, see passport config
+    .post('/', (req, res, next) => commentService
+        .create(req.user.id, req.body) // user added to the request in the jwt strategy, see passport config
         .then(comment => res.send(comment))
-        .catch(next));
+        .catch(next))
+    .put('/react', (req, res, next) => commentService.setReaction(req.user.id, req.body).then((reaction) => {
+        console.log('m', req.user.id, req.body);
+    }));
 
 export default router;

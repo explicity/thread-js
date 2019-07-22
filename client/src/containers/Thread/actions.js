@@ -55,12 +55,20 @@ export const toggleExpandedPost = postId => async (dispatch) => {
 };
 
 export const likePost = postId => async (dispatch, getRootState) => {
-    const { id } = await postService.likePost(postId);
-    const diff = id ? 1 : -1; // if ID exists then the post was liked, otherwise - like was removed
+    const response = await postService.likePost(postId);
+    const { id } = response.reaction;
+    const diffLikes = id ? 1 : -1; // if ID exists then the post was liked, otherwise - like was removed
+    let diffDislikes = 0;
+
+    if (response.previousReaction) {
+        const { isLike } = response.previousReaction;
+        isLike ? diffDislikes = 0 : diffDislikes = -1;
+    }
 
     const mapLikes = post => ({
         ...post,
-        likeCount: Number(post.likeCount) + diff // diff is taken from the current closure
+        likeCount: Number(post.likeCount) + diffLikes, // diff is taken from the current closure
+        dislikeCount: Number(post.dislikeCount) + diffDislikes,
     });
 
     const {
@@ -76,8 +84,39 @@ export const likePost = postId => async (dispatch, getRootState) => {
 };
 
 export const dislikePost = postId => async (dispatch, getRootState) => {
-    console.log('have no fucking clue how to write it')
+    const response = await postService.dislikePost(postId);
+    const { id } = response.reaction;
+    const diffDislikes = id ? 1 : -1;
+    let diffLikes = 0;
+
+    if (response.previousReaction) {
+        const { isLike } = response.previousReaction;
+        isLike ? diffLikes = -1 : diffLikes = 0 ;
+    }
+
+    const mapDislikes = post => ({
+        ...post,
+        dislikeCount: Number(post.dislikeCount) + diffDislikes,
+        likeCount: Number(post.likeCount) + diffLikes
+    });
+ 
+    const {
+        posts: { posts, expandedPost }
+    } = getRootState();
+    const updated = posts.map(post => (post.id !== postId ? post : mapDislikes(post)));
+
+    dispatch(setPostsAction(updated));
+
+    if (expandedPost && expandedPost.id === postId) {
+        dispatch(setExpandedPostAction(mapDislikes(expandedPost)));
+    }
 };
+
+export const likeComment = commentId => async (dispatch, getRootState) => {
+    const { id } = await commentService.likeComment(commentId);
+    
+    console.log(commentId);
+}
 
 export const addComment = request => async (dispatch, getRootState) => {
     const { id } = await commentService.addComment(request);

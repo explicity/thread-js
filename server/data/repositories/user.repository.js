@@ -16,16 +16,18 @@ class UserRepository extends BaseRepository {
 
     getUserById(id) {
         return this.model.findOne({
-            group: [
-                'user.id',
-                'image.id'
-            ],
+            group: ['user.id', 'image.id'],
             where: { id },
             include: {
                 model: ImageModel,
                 attributes: ['id', 'link']
             }
         });
+    }
+
+    updateUserPassword(id, password) {
+        const result = this.model.update(password, { returning: true, where: { id } });
+        return result[1];
     }
 }
 

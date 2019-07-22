@@ -18,14 +18,14 @@ router.post('/', (req, res, next) => {
             function(token, done) {
                 userService.getUserByEmail(req.body.email).then(user => {
                     if (!user) {
-                        return res.redirect('/reset');
+                        return res.redirect('/forgot');
                     }
 
                     let smtpTransport = nodemailer.createTransport({
                         service: 'gmail',
                         auth: {
                             user: 'noreply1223334444@gmail.com',
-                            pass: '1223334444noreply' 
+                            pass: '1223334444noreply'
                         },
                         tls: {
                             rejectUnauthorized: false
@@ -42,12 +42,11 @@ router.post('/', (req, res, next) => {
                             'http://' +
                             req.headers['x-forwarded-host'] +
                             '/reset/' +
-                            token +
+                            user.id +
                             '\n\n' +
                             'If you did not request this, please ignore this email and your password will remain unchanged.\n'
                     };
                     smtpTransport.sendMail(mailOptions, function(err) {
-                        console.log('HI:' + user.email);
                         res.json({
                             status: 'success',
                             message:
@@ -62,9 +61,54 @@ router.post('/', (req, res, next) => {
         ],
         err => {
             if (err) return next(err);
-            res.redirect('/reset');
+            res.redirect('/forgot');
         }
     );
+});
+
+router.post('/:id', (req, res) => {
+    async.waterfall([
+        function(done) {
+            userService.getUserById(req.params.id).then(user => {
+                if (!user) {
+                    console.log('error');
+                }
+                // TODO: fix changing password
+                userService.updateUserPassword(user.id, req.body.password).then(user => {
+                    res.json(user)
+                });
+
+                let smtpTransport = nodemailer.createTransport({
+                    service: 'gmail',
+                    auth: {
+                        user: 'noreply1223334444@gmail.com',
+                        pass: '1223334444noreply'
+                    },
+                    tls: {
+                        rejectUnauthorized: false
+                    }
+                });
+
+                const mailOptions = {
+                    to: user.email,
+                    from: 'passwordreset@demo.com',
+                    subject: 'Your password has been changed',
+                    text:
+                        'Hello,\n\n' +
+                        'This is a confirmation that the password for your account ' +
+                        user.email +
+                        ' has just been changed.\n'
+                };
+                smtpTransport.sendMail(mailOptions, function(err) {
+                    res.json({
+                        status: 'success',
+                        message: 'Success! Your password has been changed.'
+                    });
+                    done(err, 'done');
+                });
+            });
+        }
+    ]);
 });
 
 export default router;

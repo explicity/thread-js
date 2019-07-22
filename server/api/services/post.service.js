@@ -10,18 +10,24 @@ export const create = (userId, post) => postRepository.create({
     userId
 });
 
-export const setReaction = async (userId, { postId, isLike = true }) => {
+export const setReaction = async (userId, { postId, isLike }) => {
     // define the callback for future use as a promise
     const updateOrDelete = react => (react.isLike === isLike
         ? postReactionRepository.deleteById(react.id)
         : postReactionRepository.updateById(react.id, { isLike }));
 
     const reaction = await postReactionRepository.getPostReaction(userId, postId);
+    console.log('reaction: ', reaction);
 
     const result = reaction
         ? await updateOrDelete(reaction)
         : await postReactionRepository.create({ userId, postId, isLike });
 
     // the result is an integer when an entity is deleted
-    return Number.isInteger(result) ? {} : postReactionRepository.getPostReaction(userId, postId);
+    return Number.isInteger(result)
+        ? { reaction: {} }
+        : {
+            reaction: await postReactionRepository.getPostReaction(userId, postId),
+            previousReaction: reaction
+        };
 };

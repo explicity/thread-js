@@ -14,7 +14,14 @@ import ForgotPassword from 'src/components/ForgotPassword';
 import ResetPassword from 'src/components/ResetPassword';
 import PrivateRoute from 'src/containers/PrivateRoute';
 import Notifications from 'src/components/Notifications';
-import { loadCurrentUser, logout, login, registration, forgotPassword } from 'src/containers/Profile/actions';
+import {
+    loadCurrentUser,
+    logout,
+    login,
+    registration,
+    forgotPassword,
+    resetPassword
+} from 'src/containers/Profile/actions';
 import { applyPost } from 'src/containers/Thread/actions';
 import PropTypes from 'prop-types';
 
@@ -24,11 +31,7 @@ class Routing extends React.Component {
     }
 
     renderLogin = loginProps => (
-        <Login
-            {...loginProps}
-            isAuthorized={this.props.isAuthorized}
-            login={this.props.login}
-        />
+        <Login {...loginProps} isAuthorized={this.props.isAuthorized} login={this.props.login} />
     );
 
     renderRegistration = regProps => (
@@ -40,38 +43,38 @@ class Routing extends React.Component {
     );
 
     renderForgotPassword = Props => (
-        <ForgotPassword
-            {...Props}
-            forgotPassword={this.props.forgotPassword} />
-    )
+        <ForgotPassword {...Props} forgotPassword={this.props.forgotPassword} />
+    );
+
+    renderResetPassword = Props => (
+        <ResetPassword {...Props} resetPassword={this.props.resetPassword} />
+    );
 
     render() {
         const { isLoading, isAuthorized, user, ...props } = this.props;
-        return (
-            isLoading
-                ? <Spinner />
-                : (
-                    <div className="fill">
-                        {isAuthorized && (
-                            <header>
-                                <Header user={user} logout={props.logout} />
-                            </header>
-                        )}
-                        <main className="fill">
-                            <Switch>
-                                <Route exact path="/login" render={this.renderLogin} />
-                                <Route exact path="/registration" render={this.renderRegistration} />
-                                <Route exact path="/reset" render={this.renderForgotPassword} />
-                                <Route path="/reset/:id" render={ResetPassword} />
-                                <PrivateRoute exact path="/" component={Thread} />
-                                <PrivateRoute exact path="/profile" component={Profile} />
-                                <PrivateRoute path="/share/:postHash" component={SharedPost} />
-                                <Route path="*" exact component={NotFound} />
-                            </Switch>
-                        </main>
-                        <Notifications applyPost={this.props.applyPost} user={user} />
-                    </div>
-                )
+        return isLoading ? (
+            <Spinner />
+        ) : (
+            <div className="fill">
+                {isAuthorized && (
+                    <header>
+                        <Header user={user} logout={props.logout} />
+                    </header>
+                )}
+                <main className="fill">
+                    <Switch>
+                        <Route exact path="/login" render={this.renderLogin} />
+                        <Route exact path="/registration" render={this.renderRegistration} />
+                        <Route exact path="/forgot" render={this.renderForgotPassword} />
+                        <Route path="/reset/:id" render={this.renderResetPassword} />
+                        <PrivateRoute exact path="/" component={Thread} />
+                        <PrivateRoute exact path="/profile" component={Profile} />
+                        <PrivateRoute path="/share/:postHash" component={SharedPost} />
+                        <Route path="*" exact component={NotFound} />
+                    </Switch>
+                </main>
+                <Notifications applyPost={this.props.applyPost} user={user} />
+            </div>
         );
     }
 }
@@ -85,7 +88,7 @@ Routing.propTypes = {
     user: PropTypes.objectOf(PropTypes.any),
     isLoading: PropTypes.bool,
     loadCurrentUser: PropTypes.func.isRequired,
-    userId: PropTypes.string,
+    userId: PropTypes.string
 };
 
 Routing.defaultProps = {
@@ -95,7 +98,7 @@ Routing.defaultProps = {
     userId: undefined
 };
 
-const actions = { loadCurrentUser, login, logout, registration, forgotPassword, applyPost };
+const actions = { loadCurrentUser, login, logout, registration, forgotPassword, resetPassword, applyPost };
 
 const mapStateToProps = rootState => ({
     isAuthorized: rootState.profile.isAuthorized,

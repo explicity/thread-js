@@ -106,7 +106,7 @@ class Login extends React.Component {
                             <NavLink exact to="/registration">Sign Up</NavLink>
                         </Message>
                         <Message>
-                            <NavLink exact to="/reset">Forgot password?</NavLink>
+                            <NavLink exact to="/forgot">Forgot password?</NavLink>
                         </Message>
                     </Grid.Column>
                 </Grid>
