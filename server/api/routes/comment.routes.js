@@ -12,8 +12,8 @@ router
         .create(req.user.id, req.body) // user added to the request in the jwt strategy, see passport config
         .then(comment => res.send(comment))
         .catch(next))
-    .put('/react', (req, res, next) => commentService.setReaction(req.user.id, req.body).then((reaction) => {
-        console.log('m', req.user.id, req.body);
+    .put('/react', (req, res, next) => commentService.setReaction(req.user.id, req.body).then((response) => {
+        return res.send(response);
     }));
 
 export default router;
