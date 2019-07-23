@@ -50,7 +50,6 @@ class Thread extends React.Component {
                 const users = new Set();
 
                 posts.map(post => (post.userId !== userId ? users.add(post.userId) : ''));
-                console.log(users);
                 Object.assign(this.postsFilter, {
                     userId: this.state.showOthersPosts ? Array.from(users) : undefined,
                     from: 0
@@ -80,7 +79,6 @@ class Thread extends React.Component {
     render() {
         const { posts = [], expandedPost, hasMorePosts, ...props } = this.props;
         const { showOwnPosts, showOthersPosts, sharedPostId } = this.state;
-        console.log(posts);
         
         return (
             <div className={styles.threadContent}>

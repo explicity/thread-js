@@ -14,7 +14,6 @@ export const setReaction = async (userId, { commentId, isLike }) => {
         : commentReactionRepository.updateById(react.id, { isLike }));
 
     const reaction = await commentReactionRepository.getCommentReaction(userId, commentId);
-    console.log('reaction: ', reaction);
 
     const result = reaction
         ? await updateOrDelete(reaction)

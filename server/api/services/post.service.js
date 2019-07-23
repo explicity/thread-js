@@ -17,7 +17,6 @@ export const setReaction = async (userId, { postId, isLike }) => {
         : postReactionRepository.updateById(react.id, { isLike }));
 
     const reaction = await postReactionRepository.getPostReaction(userId, postId);
-    console.log('reaction: ', reaction);
 
     const result = reaction
         ? await updateOrDelete(reaction)
