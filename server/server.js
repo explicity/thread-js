@@ -5,6 +5,7 @@ import path from 'path';
 import passport from 'passport';
 import http from 'http';
 import socketIO from 'socket.io';
+import cors from 'cors';
 
 import routes from './api/routes/index';
 import authorizationMiddleware from './api/middlewares/authorization.middleware';
@@ -23,6 +24,14 @@ const app = express();
 const socketServer = http.Server(app);
 const io = socketIO(socketServer);
 
+const corsOption = {
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    exposedHeaders: ['x-auth-token']
+};
+
+
 sequelize
     .authenticate()
     .then(() => {
@@ -37,6 +46,7 @@ io.on('connection', socketHandlers);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(passport.initialize());
+app.use(cors(corsOption));
 
 app.use(socketInjector(io));
 

@@ -29,6 +29,10 @@ class UserRepository extends BaseRepository {
         const result = this.model.update(password, { returning: true, where: { id } });
         return result[1];
     }
+
+    upsertFbUser(accessToken, refreshToken, profile, cb) {
+        // finding or creating a new user
+    }
 }
 
 export default new UserRepository(UserModel);

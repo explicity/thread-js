@@ -1,9 +1,11 @@
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
+import FacebookTokenStrategy from 'passport-facebook-token';
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt';
 import { secret } from './jwt.config';
 import userRepository from '../data/repositories/user.repository';
 import cryptoHelper from '../helpers/crypto.helper';
+import { configAuth } from './oauth';
 
 const options = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -19,7 +21,7 @@ passport.use(
                 return done({ status: 401, message: 'Incorrect email.' }, false);
             }
 
-            return await cryptoHelper.compare(password, user.password)
+            return (await cryptoHelper.compare(password, user.password))
                 ? done(null, user)
                 : done({ status: 401, message: 'Passwords do not match.' }, null, false);
         } catch (err) {
@@ -39,7 +41,7 @@ passport.use(
                     return done({ status: 401, message: 'Email is already taken.' }, null);
                 }
 
-                return await userRepository.getByUsername(username)
+                return (await userRepository.getByUsername(username))
                     ? done({ status: 401, message: 'Username is already taken.' }, null)
                     : done(null, { email, username, password });
             } catch (err) {
@@ -49,11 +51,39 @@ passport.use(
     )
 );
 
-passport.use(new JwtStrategy(options, async ({ id }, done) => {
-    try {
-        const user = await userRepository.getById(id);
-        return user ? done(null, user) : done({ status: 401, message: 'Token is invalid.' }, null);
-    } catch (err) {
-        return done(err);
-    }
-}));
+passport.use(
+    new JwtStrategy(options, async ({ id }, done) => {
+        try {
+            const user = await userRepository.getById(id);
+            return user
+                ? done(null, user)
+                : done({ status: 401, message: 'Token is invalid.' }, null);
+        } catch (err) {
+            return done(err);
+        }
+    })
+);
+
+passport.use(
+    new FacebookTokenStrategy(
+        {
+            clientID: configAuth.facebookAuth.clientID,
+            clientSecret: configAuth.facebookAuth.clientSecret
+        },
+        async (accessToken, refreshToken, profile, done) => {
+            try {
+                const user = userRepository.upsertFbUser(
+                    accessToken,
+                    refreshToken,
+                    profile
+                );
+
+                return user
+                    ? done(null, user)
+                    : done({ status: 401, message: 'Something went wrong' }, null);
+            } catch (err) {
+                return done(err);
+            }
+        }
+    )
+);

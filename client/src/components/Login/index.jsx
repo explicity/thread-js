@@ -1,17 +1,13 @@
 import React from 'react';
 import { Redirect, NavLink } from 'react-router-dom';
+import FacebookLogin from 'react-facebook-login';
 import PropTypes from 'prop-types';
 import validator from 'validator';
 import Logo from 'src/components/Logo';
 
-import {
-    Grid,
-    Header,
-    Form,
-    Button,
-    Segment,
-    Message
-} from 'semantic-ui-react';
+import { Grid, Header, Form, Button, Segment, Message } from 'semantic-ui-react';
+
+import { configAuth } from '../../config/oauth';
 
 class Login extends React.Component {
     constructor(props) {
@@ -43,10 +39,7 @@ class Login extends React.Component {
 
     passwordChanged = password => this.setState({ password, isPasswordValid: true });
 
-    validateForm = () => [
-        this.validateEmail(),
-        this.validatePassword()
-    ].every(Boolean);
+    validateForm = () => [this.validateEmail(), this.validatePassword()].every(Boolean);
 
     handleClickLogin = async () => {
         const { isLoading, email, password } = this.state;
@@ -61,57 +54,96 @@ class Login extends React.Component {
             // TODO: show error
             this.setState({ isLoading: false });
         }
-    }
+    };
+
+    facebookResponse = async (response) => {
+        console.log('response: ', response);
+
+        const tokenBlob = new Blob([JSON.stringify({access_token: response.accessToken}, null, 2)], {type : 'application/json'});
+        const options = {
+            method: 'POST',
+            body: tokenBlob,
+            mode: 'cors',
+            cache: 'default'
+        };
+        fetch('http://localhost:3001/auth/facebook', options).then((res) => {
+            const token = res.headers.get('x-auth-token');
+            res.json().then((user) => {
+                if (token) {
+                    // user is authorized
+                }
+            });
+        })
+    };
 
     render() {
         const { isLoading, isEmailValid, isPasswordValid } = this.state;
-        return !this.props.isAuthorized
-            ? (
-                <Grid textAlign="center" verticalAlign="middle" className="fill">
-                    <Grid.Column style={{ maxWidth: 450 }}>
-                        <Logo />
-                        <Header as="h2" color="teal" textAlign="center">
-                            Login to your account
-                        </Header>
-                        <Form name="loginForm" size="large" onSubmit={this.handleClickLogin}>
-                            <Segment>
-                                <Form.Input
-                                    fluid
-                                    icon="at"
-                                    iconPosition="left"
-                                    placeholder="Email"
-                                    type="email"
-                                    error={!isEmailValid}
-                                    onChange={ev => this.emailChanged(ev.target.value)}
-                                    onBlur={this.validateEmail}
-                                />
-                                <Form.Input
-                                    fluid
-                                    icon="lock"
-                                    iconPosition="left"
-                                    placeholder="Password"
-                                    type="password"
-                                    error={!isPasswordValid}
-                                    onChange={ev => this.passwordChanged(ev.target.value)}
-                                    onBlur={this.validatePassword}
-                                />
-                                <Button type="submit" color="teal" fluid size="large" loading={isLoading} primary>
-                                    Login
-                                </Button>
-                            </Segment>
-                        </Form>
-                        <Message>
-                            New to us?
-                            {' '}
-                            <NavLink exact to="/registration">Sign Up</NavLink>
-                        </Message>
-                        <Message>
-                            <NavLink exact to="/forgot">Forgot password?</NavLink>
-                        </Message>
-                    </Grid.Column>
-                </Grid>
-            )
-            : <Redirect to="/" />;
+        return !this.props.isAuthorized ? (
+            <Grid textAlign="center" verticalAlign="middle" className="fill">
+                <Grid.Column style={{ maxWidth: 450 }}>
+                    <Logo />
+                    <Header as="h2" color="teal" textAlign="center">
+                        Login to your account
+                    </Header>
+                    <Form name="loginForm" size="large" onSubmit={this.handleClickLogin}>
+                        <Segment>
+                            <Form.Input
+                                fluid
+                                icon="at"
+                                iconPosition="left"
+                                placeholder="Email"
+                                type="email"
+                                error={!isEmailValid}
+                                onChange={ev => this.emailChanged(ev.target.value)}
+                                onBlur={this.validateEmail}
+                            />
+                            <Form.Input
+                                fluid
+                                icon="lock"
+                                iconPosition="left"
+                                placeholder="Password"
+                                type="password"
+                                error={!isPasswordValid}
+                                onChange={ev => this.passwordChanged(ev.target.value)}
+                                onBlur={this.validatePassword}
+                            />
+                            <Button
+                                type="submit"
+                                color="teal"
+                                fluid
+                                size="large"
+                                loading={isLoading}
+                                primary
+                            >
+                                Login
+                            </Button>
+                        </Segment>
+                    </Form>
+                    <Message>
+                        <FacebookLogin
+                            appId={configAuth.facebookAuth.clientID}
+                            autoLoad={false}
+                            fields={configAuth.facebookAuth.profileFields}
+                            callback={this.facebookResponse}
+                        />
+                    </Message>
+                    <Message>
+                        New to us?
+                        {' '}
+                        <NavLink exact to="/registration">
+                            Sign Up
+                        </NavLink>
+                    </Message>
+                    <Message>
+                        <NavLink exact to="/forgot">
+                            Forgot password?
+                        </NavLink>
+                    </Message>
+                </Grid.Column>
+            </Grid>
+        ) : (
+            <Redirect to="/" />
+        );
     }
 }
 
